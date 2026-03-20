@@ -1,7 +1,7 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  serverExternalPackages: ['playwright', '@mozilla/readability', 'jsdom', 'pg'],
+}
 
-export default nextConfig;
+export default nextConfig

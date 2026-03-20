@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/lib/generated/prisma
+
+# Twitter session cookies (contains auth tokens - never commit)
+twitter-cookies.json

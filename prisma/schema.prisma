@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Bookmark {
+  id             String   @id @default(uuid())
+  tweetId        String   @unique
+  tweetText      String
+  authorUsername String
+  authorName     String
+  tweetCreatedAt DateTime
+  bookmarkedAt   DateTime @default(now())
+  urls           Json     @default("[]")
+  mediaUrls      Json     @default("[]")
+  source         String   @default("manual_upload") // 'playwright' | 'manual_upload'
+  fetchedAt      DateTime @default(now())
+  article        Article?
+
+  @@index([bookmarkedAt])
+}
+
+model Article {
+  id             String    @id @default(uuid())
+  bookmarkId     String    @unique
+  bookmark       Bookmark  @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  url            String
+  title          String?
+  scrapedContent String?
+  summary        String?
+  wordCount      Int?
+  articleAuthor  String?
+  publishedAt    DateTime?
+  scrapedAt      DateTime?
+  addedToList    Boolean   @default(true)
+  addedAt        DateTime  @default(now())
+
+  @@index([addedToList, addedAt])
+}
