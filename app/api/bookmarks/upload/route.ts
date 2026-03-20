@@ -13,18 +13,27 @@ interface UploadedBookmark {
   name?: string
   tweetCreatedAt?: string
   created_at?: string
+  tweeted_at?: string
+  bookmark_date?: string
+  tweet_url?: string
   urls?: string[]
   mediaUrls?: string[]
   url?: string
 }
 
+function extractIdFromUrl(url?: string): string | undefined {
+  if (!url) return undefined
+  const match = url.match(/\/status\/(\d+)/)
+  return match?.[1]
+}
+
 function normalizeBookmark(raw: UploadedBookmark) {
-  const tweetId = raw.tweetId ?? raw.id ?? ''
+  const tweetId = raw.tweetId ?? raw.id ?? extractIdFromUrl(raw.tweet_url) ?? ''
   const tweetText = raw.tweetText ?? raw.full_text ?? raw.text ?? ''
   const authorUsername = raw.authorUsername ?? raw.author ?? raw.screen_name ?? 'unknown'
   const authorName = raw.authorName ?? raw.name ?? authorUsername
-  const tweetCreatedAt = raw.tweetCreatedAt ?? raw.created_at
-  const urls = raw.urls ?? (raw.url ? [raw.url] : [])
+  const tweetCreatedAt = raw.tweetCreatedAt ?? raw.created_at ?? raw.tweeted_at
+  const urls = raw.urls ?? (raw.url ? [raw.url] : raw.tweet_url ? [raw.tweet_url] : [])
 
   return {
     tweetId,
