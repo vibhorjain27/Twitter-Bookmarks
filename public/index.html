@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twitter Bookmarks</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f8fafc; color: #1e293b; }
+    nav { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 24px; display: flex; align-items: center; justify-between; }
+    nav h1 { font-size: 1.1rem; font-weight: 700; }
+    nav .tabs a { margin-left: 16px; text-decoration: none; color: #64748b; font-size: 0.9rem; }
+    nav .tabs a.active { color: #2563eb; font-weight: 600; }
+    main { max-width: 720px; margin: 32px auto; padding: 0 16px; }
+    h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+    .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 20px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: none; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: white; color: #374151; border: 1px solid #d1d5db; }
+    .btn-outline:hover { background: #f9fafb; }
+    .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+    .top-row { display: flex; align-items: center; justify-between; margin-bottom: 20px; gap: 8px; }
+    .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+    .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .card-author { font-size: 0.8rem; color: #64748b; margin-bottom: 8px; }
+    .card-text { font-size: 0.88rem; line-height: 1.55; color: #334155; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-url { font-size: 0.75rem; color: #2563eb; text-decoration: none; display: block; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+    .card-footer a { font-size: 0.75rem; color: #94a3b8; text-decoration: none; }
+    .btn-green { background: white; color: #15803d; border: 1px solid #bbf7d0; }
+    .btn-green:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .empty { text-align: center; padding: 60px 0; color: #94a3b8; }
+    .empty p { margin-top: 8px; font-size: 0.9rem; }
+    /* Modal */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+    .overlay.open { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 24px; width: 100%; max-width: 440px; }
+    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .modal p { font-size: 0.85rem; color: #64748b; margin-bottom: 16px; }
+    .dropzone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 36px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+    .dropzone:hover, .dropzone.drag { border-color: #2563eb; background: #eff6ff; }
+    .dropzone p { font-size: 0.85rem; color: #475569; margin-top: 8px; }
+    .dropzone small { color: #94a3b8; font-size: 0.75rem; }
+    .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 24px; font-size: 0.85rem; color: #64748b; }
+    /* Article detail */
+    #detail { display: none; }
+    #detail.open { display: block; }
+    #list-view { display: block; }
+    #list-view.hidden { display: none; }
+    .article-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .article-body { font-size: 0.9rem; line-height: 1.7; color: #374151; white-space: pre-wrap; word-break: break-word; margin-top: 16px; }
+    .summary-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px; margin-top: 16px; font-size: 0.85rem; color: #166534; line-height: 1.6; }
+    .back-btn { font-size: 0.85rem; color: #2563eb; cursor: pointer; background: none; border: none; margin-bottom: 16px; }
+    .tts-bar { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .help-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 0.83rem; color: #1e3a8a; display: none; }
+    .help-box.open { display: block; }
+    .help-box ol { padding-left: 18px; margin-top: 8px; line-height: 1.8; }
+    .spinner { width: 18px; height: 18px; border: 2px solid #cbd5e1; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .groq-note { font-size: 0.75rem; color: #94a3b8; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <h1>📌 Bookmarks</h1>
+  <div class="tabs">
+    <a href="#" class="active" onclick="showPage('bookmarks',this)">Bookmarks</a>
+    <a href="#" onclick="showPage('articles',this)">Article List</a>
+  </div>
+</nav>
+
+<!-- BOOKMARKS PAGE -->
+<main id="page-bookmarks">
+  <div id="list-view">
+    <div class="top-row">
+      <div>
+        <h2>Twitter Bookmarks</h2>
+        <p class="meta" id="bk-meta">0 bookmarks imported</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="toggleHelp()">❓ How to import</button>
+        <button class="btn btn-primary" onclick="openModal()">⬆ Import</button>
+      </div>
+    </div>
+
+    <div class="help-box" id="help-box">
+      <strong>How to import your Twitter bookmarks</strong>
+      <ol>
+        <li>Install <a href="https://chromewebstore.google.com/detail/bookmark-exporter-for-x-t/apfgpkkhhglnbmklplpklfhfmncmaaib" target="_blank">Bookmark Exporter for X/Twitter</a> in Chrome</li>
+        <li>Go to <strong>twitter.com/i/bookmarks</strong> while logged in</li>
+        <li>Click the extension icon → Export as JSON</li>
+        <li>Click <strong>Import</strong> above and drop the file</li>
+      </ol>
+    </div>
+
+    <div id="bk-list"></div>
+    <div class="pager" id="bk-pager"></div>
+  </div>
+
+  <div id="detail">
+    <button class="back-btn" onclick="closeDetail()">← Back</button>
+    <div id="detail-content"></div>
+  </div>
+</main>
+
+<!-- ARTICLES PAGE -->
+<main id="page-articles" style="display:none">
+  <div class="top-row">
+    <div>
+      <h2>Article List</h2>
+      <p class="meta" id="art-meta">0 articles saved</p>
+    </div>
+  </div>
+  <div id="art-list"></div>
+</main>
+
+<!-- UPLOAD MODAL -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <h3>Import Bookmarks</h3>
+    <p>Upload the JSON file exported from the Chrome extension.</p>
+    <div class="dropzone" id="dropzone"
+      ondragover="dz(event,true)" ondragleave="dz(event,false)" ondrop="drop(event)"
+      onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2rem">📂</div>
+      <p>Drop file here or click to browse</p>
+      <small>Accepts .json or .js</small>
+    </div>
+    <input type="file" id="file-input" accept=".json,.js" style="display:none" onchange="pickFile(this)">
+    <p id="upload-status" style="margin-top:10px;font-size:0.83rem;color:#16a34a"></p>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Storage helpers ──────────────────────────────────────────
+const DB = {
+  get: k => JSON.parse(localStorage.getItem(k) || 'null'),
+  set: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+
+let bookmarks = DB.get('bookmarks') || [];
+let articles  = DB.get('articles')  || [];
+let bkPage = 1;
+const PER_PAGE = 20;
+
+// ── Nav ──────────────────────────────────────────────────────
+function showPage(name, el) {
+  document.getElementById('page-bookmarks').style.display = name === 'bookmarks' ? '' : 'none';
+  document.getElementById('page-articles').style.display  = name === 'articles'  ? '' : 'none';
+  document.querySelectorAll('nav .tabs a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (name === 'articles') renderArticles();
+  return false;
+}
+
+// ── Bookmarks render ─────────────────────────────────────────
+function renderBookmarks() {
+  const total = bookmarks.length;
+  document.getElementById('bk-meta').textContent = total + ' bookmarks imported';
+  const start = (bkPage - 1) * PER_PAGE;
+  const page  = bookmarks.slice(start, start + PER_PAGE);
+  const list  = document.getElementById('bk-list');
+
+  if (!total) {
+    list.innerHTML = `<div class="empty">📎<p>No bookmarks yet — click Import to get started.</p></div>`;
+    document.getElementById('bk-pager').innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = page.map((b, i) => {
+    const url = b.urls?.[0] || '';
+    const inList = articles.some(a => a.bookmarkId === b.id);
+    const idx = start + i;
+    return `<div class="card">
+      <div class="card-author">@${b.authorUsername || 'unknown'} · ${timeAgo(b.bookmarkedAt)}</div>
+      <p class="card-text">${esc(b.tweetText)}</p>
+      ${url ? `<a class="card-url" href="${url}" target="_blank">${url.replace(/^https?:\/\//,'')}</a>` : ''}
+      <div class="card-footer">
+        <a href="https://twitter.com/i/web/status/${b.tweetId}" target="_blank">View tweet</a>
+        ${inList
+          ? `<button class="btn btn-sm btn-green" onclick="removeFromList('${b.id}')">✓ In List</button>`
+          : url ? `<button class="btn btn-sm btn-primary" onclick="addToList(${idx})">+ Add to List</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const totalPages = Math.ceil(total / PER_PAGE);
+  document.getElementById('bk-pager').innerHTML = totalPages > 1
+    ? `<button class="btn btn-outline btn-sm" onclick="bkPage--; renderBookmarks()" ${bkPage===1?'disabled':''}>‹</button>
+       <span>Page ${bkPage} of ${totalPages}</span>
+       <button class="btn btn-outline btn-sm" onclick="bkPage++; renderBookmarks()" ${bkPage===totalPages?'disabled':''}>›</button>`
+    : '';
+}
+
+function addToList(idx) {
+  const b = bookmarks[idx];
+  if (!b || articles.some(a => a.bookmarkId === b.id)) return;
+  articles.push({ id: Date.now().toString(), bookmarkId: b.id, url: b.urls?.[0], title: null, content: null });
+  DB.set('articles', articles);
+  renderBookmarks();
+  alert('Added to Article List!');
+}
+
+function removeFromList(bookmarkId) {
+  articles = articles.filter(a => a.bookmarkId !== bookmarkId);
+  DB.set('articles', articles);
+  renderBookmarks();
+}
+
+// ── Articles render ──────────────────────────────────────────
+function renderArticles() {
+  document.getElementById('art-meta').textContent = articles.length + ' articles saved';
+  const list = document.getElementById('art-list');
+  if (!articles.length) {
+    list.innerHTML = `<div class="empty">📄<p>No articles yet — add bookmarks from the Bookmarks tab.</p></div>`;
+    return;
+  }
+  list.innerHTML = articles.map(a => {
+    const b = bookmarks.find(x => x.id === a.bookmarkId) || {};
+    const title = a.title || a.url || 'Article';
+    return `<div class="card">
+      <div class="card-author">@${b.authorUsername || 'unknown'}</div>
+      <p class="card-text">${esc(b.tweetText || title)}</p>
+      ${a.url ? `<a class="card-url" href="${a.url}" target="_blank">${a.url.replace(/^https?:\/\//,'')}</a>` : ''}
+      <div class="card-footer">
+        <button class="btn btn-sm btn-outline" onclick="openArticle('${a.id}')">📖 Read</button>
+        <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteArticle('${a.id}')">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteArticle(id) {
+  articles = articles.filter(a => a.id !== id);
+  DB.set('articles', articles);
+  renderArticles();
+}
+
+// ── Article detail ───────────────────────────────────────────
+function openArticle(id) {
+  const a = articles.find(x => x.id === id);
+  if (!a) return;
+  const b = bookmarks.find(x => x.id === a.bookmarkId) || {};
+  const dc = document.getElementById('detail-content');
+  dc.innerHTML = `
+    <div class="article-title">${esc(a.title || a.url || 'Article')}</div>
+    <div style="font-size:0.8rem;color:#64748b;margin-bottom:8px">@${b.authorUsername || 'unknown'}</div>
+    ${a.url ? `<a href="${a.url}" target="_blank" class="card-url">${a.url}</a>` : ''}
+    <p style="font-size:0.83rem;color:#64748b;margin-bottom:8px">${esc(b.tweetText||'')}</p>
+    ${a.content ? `<div class="article-body">${esc(a.content)}</div>` : ''}
+    <div id="summary-area"></div>
+    <div class="tts-bar" id="tts-bar">
+      <button class="btn btn-outline btn-sm" onclick="speak('${id}')">🔊 Listen</button>
+      <button class="btn btn-outline btn-sm" onclick="stopSpeak()">⏹ Stop</button>
+    </div>
+    <p class="groq-note">Note: AI summarize works if you host this app with a backend (Vercel). TTS works in any browser.</p>
+  `;
+  document.getElementById('list-view').classList.add('hidden');
+  document.getElementById('detail').classList.add('open');
+}
+
+function closeDetail() {
+  stopSpeak();
+  document.getElementById('detail').classList.remove('open');
+  document.getElementById('list-view').classList.remove('hidden');
+}
+
+function speak(articleId) {
+  stopSpeak();
+  const a = articles.find(x => x.id === articleId);
+  const b = bookmarks.find(x => x.id === a?.bookmarkId) || {};
+  const text = a?.content || b.tweetText || 'No content to read.';
+  const utter = new SpeechSynthesisUtterance(text);
+  window.speechSynthesis.speak(utter);
+}
+
+function stopSpeak() {
+  window.speechSynthesis.cancel();
+}
+
+// ── Upload / Import ──────────────────────────────────────────
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); document.getElementById('upload-status').textContent = ''; }
+function toggleHelp() { document.getElementById('help-box').classList.toggle('open'); }
+
+function dz(e, on) { e.preventDefault(); document.getElementById('dropzone').classList.toggle('drag', on); }
+
+function drop(e) {
+  e.preventDefault();
+  dz(e, false);
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function pickFile(input) {
+  if (input.files[0]) processFile(input.files[0]);
+}
+
+async function processFile(file) {
+  const status = document.getElementById('upload-status');
+  status.textContent = 'Reading file...';
+  try {
+    let text = await file.text();
+    if (text.startsWith('window.YTD')) {
+      const m = text.match(/= (\[[\s\S]*\])/);
+      if (m) text = m[1];
+    }
+    const data = JSON.parse(text);
+    const items = Array.isArray(data) ? data : (data.bookmarks || data.data || []);
+    let added = 0;
+    for (const item of items) {
+      const bm = normalise(item);
+      if (!bm) continue;
+      if (!bookmarks.find(x => x.tweetId === bm.tweetId)) {
+        bookmarks.push(bm);
+        added++;
+      }
+    }
+    DB.set('bookmarks', bookmarks);
+    status.style.color = '#16a34a';
+    status.textContent = `✓ Imported ${added} new bookmarks (${bookmarks.length} total)`;
+    bkPage = 1;
+    renderBookmarks();
+    setTimeout(closeModal, 1500);
+  } catch (e) {
+    status.style.color = '#dc2626';
+    status.textContent = 'Error: ' + e.message;
+  }
+}
+
+function normalise(item) {
+  // Twitter official export format
+  const t = item.tweet || item;
+  const entities = t.entities || {};
+  const urls = (entities.urls || []).map(u => u.expanded_url).filter(Boolean);
+  const media = (t.extended_entities?.media || []).map(m => m.media_url_https).filter(Boolean);
+  const id = t.id_str || t.tweetId || t.id || item.tweetId;
+  if (!id) return null;
+  return {
+    id: id + '-' + Math.random().toString(36).slice(2,6),
+    tweetId: id,
+    tweetText: t.full_text || t.text || t.tweetText || '',
+    authorUsername: t.user?.screen_name || item.authorUsername || 'unknown',
+    authorName: t.user?.name || item.authorName || '',
+    tweetCreatedAt: t.created_at || item.tweetCreatedAt || new Date().toISOString(),
+    bookmarkedAt: item.bookmarkedAt || new Date().toISOString(),
+    urls,
+    mediaUrls: media,
+  };
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function timeAgo(d) {
+  const s = Math.floor((Date.now() - new Date(d)) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+
+// ── Init ─────────────────────────────────────────────────────
+renderBookmarks();
+</script>
+</body>
+</html>
