@@ -36,7 +36,7 @@ const HOW_IT_WORKS = [
     icon: '📍',
     step: 2,
     title: 'Pin Your Destination',
-    desc: 'Mark the countries you've explored. Watch your personal world map come alive with every new adventure.',
+    desc: "Mark the countries you've explored. Watch your personal world map come alive with every new adventure.",
   },
   {
     icon: '🌍',
