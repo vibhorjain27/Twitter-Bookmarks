@@ -44,3 +44,20 @@ model Article {
 
   @@index([addedToList, addedAt])
 }
+
+model TravelPost {
+  id         String   @id @default(uuid())
+  title      String
+  location   String
+  country    String
+  imageUrl   String?
+  content    String
+  authorName String   @default("Anonymous Traveler")
+  tags       Json     @default("[]")
+  likes      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([country])
+}

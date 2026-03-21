@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -128,3 +130,74 @@
     @apply font-sans;
   }
 }
+
+/* ── Travel theme ─────────────────────────────────── */
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+.font-lato {
+  font-family: 'Lato', system-ui, sans-serif;
+}
+
+/* Postcard border effect */
+.postcard-frame {
+  border: 6px solid white;
+  outline: 1px solid #d4c5b0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.postcard-stripe {
+  background: repeating-linear-gradient(
+    90deg,
+    #dc2626 0px, #dc2626 8px,
+    #2563eb 8px, #2563eb 16px,
+    #dc2626 16px, #dc2626 24px,
+    #2563eb 24px, #2563eb 32px
+  );
+  height: 4px;
+}
+
+/* Floating animations */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-18px) rotate(4deg); }
+}
+@keyframes float-card {
+  0%, 100% { transform: translateY(0px) rotate(-3deg); }
+  50%       { transform: translateY(-10px) rotate(-1deg); }
+}
+@keyframes float-card2 {
+  0%, 100% { transform: translateY(0px) rotate(3deg); }
+  50%       { transform: translateY(-14px) rotate(5deg); }
+}
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes stamp-in {
+  0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
+  70%  { transform: scale(1.15) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+}
+@keyframes plane-fly {
+  from { transform: translateX(-60px) translateY(20px); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateX(120vw) translateY(-80px); opacity: 0; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(249, 115, 22, 0); }
+}
+
+.animate-float-slow  { animation: float-slow 7s ease-in-out infinite; }
+.animate-float-card  { animation: float-card 6s ease-in-out infinite; }
+.animate-float-card2 { animation: float-card2 8s ease-in-out infinite; }
+.animate-slide-up    { animation: slide-up-fade 0.7s ease-out forwards; }
+.animate-stamp       { animation: stamp-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.animate-plane       { animation: plane-fly 12s linear infinite; }
+.animate-pulse-glow  { animation: pulse-glow 2s ease-in-out infinite; }
+
+.delay-100  { animation-delay: 0.1s; }
+.delay-200  { animation-delay: 0.2s; }
+.delay-300  { animation-delay: 0.3s; }
+.delay-500  { animation-delay: 0.5s; }
+.delay-700  { animation-delay: 0.7s; }

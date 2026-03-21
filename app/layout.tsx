@@ -4,8 +4,8 @@ import { Providers } from '@/components/Providers'
 import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
-  title: 'Twitter Bookmarks Reader',
-  description: 'Browse, curate, and listen to your Twitter bookmarks',
+  title: 'Mapping Postcard — Your Adventures, Beautifully Captured',
+  description: 'A beautiful travel blogging platform to share your journey with the world. Explore stories from every corner of the globe.',
 }
 
 export default function RootLayout({
