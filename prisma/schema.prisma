@@ -44,3 +44,15 @@ model Article {
 
   @@index([addedToList, addedAt])
 }
+
+model InboxItem {
+  id     String   @id @default(cuid())
+  title  String
+  url    String?
+  cat    String
+  status String   @default("todo")
+  added  DateTime @default(now())
+
+  @@index([cat, status])
+  @@index([status, added])
+}

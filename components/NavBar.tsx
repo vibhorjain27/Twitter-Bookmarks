@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, Bookmark } from 'lucide-react'
+import { BookOpen, Bookmark, Inbox } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function NavBar() {
   const pathname = usePathname()
 
   const links = [
+    { href: '/inbox', label: 'Inbox', icon: Inbox },
     { href: '/bookmarks', label: 'Bookmarks', icon: Bookmark },
     { href: '/articles', label: 'Article List', icon: BookOpen },
   ]
