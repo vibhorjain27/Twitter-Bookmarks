@@ -7,6 +7,7 @@ import { NavBar } from '@/components/NavBar'
 import { CategoryTabs } from '@/components/inbox/CategoryTabs'
 import { InboxCard, type InboxItem } from '@/components/inbox/InboxCard'
 import { AddItemDialog } from '@/components/inbox/AddItemDialog'
+import { ImportCSVButton } from '@/components/inbox/ImportCSVButton'
 import { StatsBar } from '@/components/inbox/StatsBar'
 import { FilterBar } from '@/components/inbox/FilterBar'
 
@@ -74,7 +75,10 @@ export default function InboxPage() {
             <h1 className="text-2xl font-bold text-slate-900">Bookmark Inbox</h1>
             <p className="text-sm text-slate-500 mt-0.5">Find, action, and clear your backlog</p>
           </div>
-          <AddItemDialog onAdded={() => queryClient.invalidateQueries({ queryKey: ['inbox'] })} />
+          <div className="flex items-center gap-2">
+            <ImportCSVButton onImported={() => queryClient.invalidateQueries({ queryKey: ['inbox'] })} />
+            <AddItemDialog onAdded={() => queryClient.invalidateQueries({ queryKey: ['inbox'] })} />
+          </div>
         </div>
 
         {allItems.length > 0 && <StatsBar items={allItems} />}

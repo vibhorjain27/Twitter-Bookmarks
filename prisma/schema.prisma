@@ -46,12 +46,13 @@ model Article {
 }
 
 model InboxItem {
-  id     String   @id @default(cuid())
-  title  String
-  url    String?
-  cat    String
-  status String   @default("todo")
-  added  DateTime @default(now())
+  id       String   @id @default(cuid())
+  title    String
+  url      String?
+  cat      String
+  status   String   @default("todo")
+  added    DateTime @default(now())
+  sourceId String?  @unique
 
   @@index([cat, status])
   @@index([status, added])
